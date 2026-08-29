@@ -37,6 +37,10 @@ export async function createLoop(
   return id;
 }
 
+export async function getLoop(id: string): Promise<Loop | undefined> {
+  return db.loops.get(id);
+}
+
 export async function closeLoop(id: string, feedback?: string): Promise<void> {
   const loop = await db.loops.get(id);
   if (!loop) return;

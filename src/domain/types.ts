@@ -24,3 +24,9 @@ export interface CaptureItem {
   processed: boolean;
   createdAt: number;
 }
+
+export interface ReviewSession {
+  id: string;
+  completedAt: number;
+  completed: boolean;
+}

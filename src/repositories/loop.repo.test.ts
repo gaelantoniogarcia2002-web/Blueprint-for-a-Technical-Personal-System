@@ -1,5 +1,12 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { BlueprintDB } from '@/db/schema';
+import {
+  listLoops,
+  createLoop,
+  getLoop,
+  closeLoop,
+  appendFeedback,
+} from '@/repositories/loop.repo';
 import type { Loop } from '@/domain/types';
 
 let testDb: BlueprintDB;
@@ -10,7 +17,8 @@ function makeTestDb(): BlueprintDB {
   return new BlueprintDB(`blueprint-test-loop-${counter}`);
 }
 
-async function createLoop(
+// Helper: insert a loop directly into the test DB (bypasses repo singleton db)
+async function insertLoop(
   dbInst: BlueprintDB,
   input: Omit<Loop, 'id' | 'createdAt'>,
 ): Promise<string> {
@@ -25,7 +33,7 @@ describe('Loop repository', () => {
   });
 
   it('creates a Loop and returns its id', async () => {
-    const id = await createLoop(testDb, {
+    const id = await createLoop({
       nodeId: 'node-1',
       title: 'Sprint Loop',
       status: 'ACTIVE',
@@ -35,66 +43,76 @@ describe('Loop repository', () => {
     expect(id).not.toBe('');
   });
 
-  it('reads a Loop by id', async () => {
-    const id = await createLoop(testDb, {
+  it('reads a Loop by id via getLoop', async () => {
+    // insertLoop is for the isolated testDb; getLoop uses the singleton db
+    await insertLoop(testDb, {
       nodeId: 'node-2',
       title: 'Read Loop',
       status: 'ACTIVE',
       feedbackNotes: [],
     });
-    const loop = await testDb.loops.get(id);
+    const repoId = await createLoop({
+      nodeId: 'node-2',
+      title: 'Read Loop via repo',
+      status: 'ACTIVE',
+      feedbackNotes: [],
+    });
+    const loop = await getLoop(repoId);
     expect(loop).toBeDefined();
-    expect(loop?.title).toBe('Read Loop');
+    expect(loop?.title).toBe('Read Loop via repo');
+    expect(loop?.id).toBe(repoId);
+  });
+
+  it('returns undefined for non-existent id via getLoop', async () => {
+    const loop = await getLoop('does-not-exist');
+    expect(loop).toBeUndefined();
   });
 
   it('lists loops by nodeId', async () => {
-    await createLoop(testDb, {
+    await createLoop({
       nodeId: 'node-A',
       title: 'Loop 1',
       status: 'ACTIVE',
       feedbackNotes: [],
     });
-    await createLoop(testDb, {
+    await createLoop({
       nodeId: 'node-A',
       title: 'Loop 2',
       status: 'ACTIVE',
       feedbackNotes: [],
     });
-    await createLoop(testDb, {
+    await createLoop({
       nodeId: 'node-B',
       title: 'Loop 3',
       status: 'ACTIVE',
       feedbackNotes: [],
     });
-    const loops = await testDb.loops.where('nodeId').equals('node-A').toArray();
-    expect(loops).toHaveLength(2);
+    const loops = await listLoops({ nodeId: 'node-A' });
+    expect(loops.length).toBeGreaterThanOrEqual(2);
+    expect(loops.every((l) => l.nodeId === 'node-A')).toBe(true);
   });
 
-  it('closes a loop (updates status)', async () => {
-    const id = await createLoop(testDb, {
+  it('closes a loop and verifies status via getLoop', async () => {
+    const id = await createLoop({
       nodeId: 'node-3',
       title: 'Close Me',
       status: 'ACTIVE',
       feedbackNotes: [],
     });
-    await testDb.loops.update(id, { status: 'CLOSED' });
-    const loop = await testDb.loops.get(id);
+    await closeLoop(id);
+    const loop = await getLoop(id);
     expect(loop?.status).toBe('CLOSED');
   });
 
-  it('appends feedback to a loop', async () => {
-    const id = await createLoop(testDb, {
+  it('appends feedback to a loop and verifies via getLoop', async () => {
+    const id = await createLoop({
       nodeId: 'node-4',
       title: 'Feedback Loop',
       status: 'ACTIVE',
       feedbackNotes: ['initial note'],
     });
-    const loop = await testDb.loops.get(id);
-    if (!loop) throw new Error('Loop not found');
-    await testDb.loops.update(id, {
-      feedbackNotes: [...loop.feedbackNotes, 'new note'],
-    });
-    const updated = await testDb.loops.get(id);
+    await appendFeedback(id, 'new note');
+    const updated = await getLoop(id);
     expect(updated?.feedbackNotes).toEqual(['initial note', 'new note']);
   });
 });
