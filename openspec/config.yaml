@@ -1,0 +1,52 @@
+schema: spec-driven
+
+context: |
+  Project: unidad
+  Status: freshly initialized — no source files yet
+  Intended stack: TypeScript/JavaScript (inferred from .gga FILE_PATTERNS: *.ts,*.tsx,*.js,*.jsx)
+  Architecture: not yet determined
+  Testing: not yet determined — no package.json or test runner detected
+  Code review: Gentleman Guardian Angel (.gga) using claude provider
+
+strict_tdd: false  # No test runner detected at init time; update when stack is established
+
+testing:
+  runner: null
+  command: null
+  layers:
+    unit: false
+    integration: false
+    e2e: false
+  coverage:
+    available: false
+    command: null
+  quality:
+    linter: null
+    type_checker: null
+    formatter: null
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+    - Define acceptance criteria before implementation
+  specs:
+    - Use Given/When/Then for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+  design:
+    - Include sequence diagrams for complex flows
+    - Document architecture decisions with rationale
+  tasks:
+    - Group by phase, use hierarchical numbering
+    - Keep tasks completable in one session
+  apply:
+    guidelines:
+      - Follow existing code patterns
+      - Maintain TypeScript strict mode when configured
+    tdd: false
+    test_command: ""
+  verify:
+    test_command: ""
+    build_command: ""
+    coverage_threshold: 0
+  archive:
+    - Warn before merging destructive deltas
