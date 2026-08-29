@@ -13,7 +13,7 @@ function RootLayout() {
           to="/capture"
           className="font-medium hover:underline [&.active]:underline"
         >
-          Capture
+          Captura
         </Link>
         <Link
           to="/dashboard"
@@ -31,7 +31,7 @@ function RootLayout() {
           to="/review"
           className="font-medium hover:underline [&.active]:underline"
         >
-          Review
+          Revisión
         </Link>
       </nav>
       <main className="flex-1">
@@ -44,9 +44,9 @@ function RootLayout() {
 function NotFound() {
   return (
     <div className="p-8 text-center">
-      <h1 className="text-2xl font-bold mb-2">404 — Page not found</h1>
+      <h1 className="text-2xl font-bold mb-2">404 — Página no encontrada</h1>
       <Link to="/capture" className="underline text-primary">
-        Go to Capture
+        Ir a Captura
       </Link>
     </div>
   );

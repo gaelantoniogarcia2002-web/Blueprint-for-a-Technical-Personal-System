@@ -34,7 +34,7 @@ export function CaptureInput() {
       <textarea
         ref={textareaRef}
         className="w-full resize-none rounded-md border border-input bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring max-w-full min-w-0 break-words overflow-wrap-anywhere whitespace-pre-wrap"
-        placeholder="Capture something… (Enter to save, Shift+Enter for newline)"
+        placeholder="Capturá algo… (Enter para guardar, Shift+Enter para nueva línea)"
         rows={1}
         onKeyDown={handleKeyDown}
         onInput={handleInput}

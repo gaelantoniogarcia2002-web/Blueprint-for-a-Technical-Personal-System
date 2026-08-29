@@ -13,7 +13,7 @@ export function CaptureShell() {
       <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-2">
         {items.length === 0 && (
           <p className="text-muted-foreground text-sm">
-            Nothing captured yet. Start typing below.
+            Nada capturado aún. Empezá a escribir abajo.
           </p>
         )}
         {items.map((item) => (
