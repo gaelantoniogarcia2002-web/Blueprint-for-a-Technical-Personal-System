@@ -1,4 +1,5 @@
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router';
+import { HelpButton } from '@/components/help/HelpButton';
 
 export const Route = createRootRoute({
   component: RootLayout,
@@ -37,6 +38,7 @@ function RootLayout() {
       <main className="flex-1">
         <Outlet />
       </main>
+      <HelpButton />
     </div>
   );
 }

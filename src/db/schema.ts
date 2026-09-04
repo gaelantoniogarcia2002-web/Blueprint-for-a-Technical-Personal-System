@@ -24,6 +24,14 @@ export class BlueprintDB extends Dexie {
       captureItems:   'id, processed, createdAt',
       reviewSessions: 'id, completedAt',
     });
+
+    // Version 3 — adds paraNodes.status index (Finalizar/Archivar/Eliminar lifecycle, v0.3)
+    this.version(3).stores({
+      paraNodes:      'id, type, status, updatedAt, createdAt',
+      loops:          'id, nodeId, status, createdAt',
+      captureItems:   'id, processed, createdAt',
+      reviewSessions: 'id, completedAt',
+    });
   }
 }
 
