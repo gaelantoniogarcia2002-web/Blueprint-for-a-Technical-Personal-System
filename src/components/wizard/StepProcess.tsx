@@ -6,6 +6,7 @@ import { markProcessed } from '@/repositories/captureItem.repo';
 import { useWizardStore } from '@/stores/wizard.store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { DEPOSIT_TYPE_LABELS } from '@/domain/paraRules';
 import type { DepositType } from '@/domain/types';
 
 const DEPOSIT_TYPES: DepositType[] = ['PROJECT', 'AREA', 'RESOURCE', 'ARCHIVE'];
@@ -88,7 +89,7 @@ export function StepProcess({ mountTime }: StepProcessProps) {
             >
               {DEPOSIT_TYPES.map((t) => (
                 <option key={t} value={t}>
-                  {t}
+                  {DEPOSIT_TYPE_LABELS[t]}
                 </option>
               ))}
             </select>

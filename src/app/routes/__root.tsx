@@ -1,4 +1,5 @@
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router';
+import { HelpButton } from '@/components/help/HelpButton';
 
 export const Route = createRootRoute({
   component: RootLayout,
@@ -7,8 +8,8 @@ export const Route = createRootRoute({
 
 function RootLayout() {
   return (
-    <div className="flex flex-col min-h-screen">
-      <nav className="flex gap-4 p-4 border-b bg-background">
+    <div className="flex flex-col h-dvh overflow-hidden">
+      <nav className="flex gap-4 p-4 border-b bg-background shrink-0">
         <Link
           to="/capture"
           className="font-medium hover:underline [&.active]:underline"
@@ -34,9 +35,10 @@ function RootLayout() {
           Revisión
         </Link>
       </nav>
-      <main className="flex-1">
+      <main className="flex-1 min-h-0 overflow-y-auto">
         <Outlet />
       </main>
+      <HelpButton />
     </div>
   );
 }

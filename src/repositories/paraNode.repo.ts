@@ -32,3 +32,51 @@ export async function updateParaNode(
 export async function deleteParaNode(id: string): Promise<void> {
   await db.paraNodes.delete(id);
 }
+
+/** Marks a node as finished (e.g. a completed project). Reversible via reopenParaNode. */
+export async function finishParaNode(id: string): Promise<void> {
+  await db.paraNodes.update(id, { status: 'FINISHED', updatedAt: Date.now() });
+}
+
+/** Reopens a previously finished node. */
+export async function reopenParaNode(id: string): Promise<void> {
+  await db.paraNodes.update(id, { status: 'ACTIVE', updatedAt: Date.now() });
+}
+
+/** Sends a node to the ARCHIVE deposit, remembering its original type for restore. */
+export async function archiveParaNode(id: string): Promise<void> {
+  const node = await db.paraNodes.get(id);
+  if (!node || node.type === 'ARCHIVE') return;
+  await db.paraNodes.update(id, {
+    archivedFromType: node.type,
+    type: 'ARCHIVE',
+    updatedAt: Date.now(),
+  });
+}
+
+/** Restores an archived node to the deposit it was archived from. */
+export async function restoreParaNode(id: string): Promise<void> {
+  const node = await db.paraNodes.get(id);
+  if (!node || node.type !== 'ARCHIVE' || !node.archivedFromType) return;
+  await db.paraNodes.update(id, {
+    type: node.archivedFromType,
+    archivedFromType: undefined,
+    updatedAt: Date.now(),
+  });
+}
+
+/** Sets the lightweight time estimate for a node, in minutes. */
+export async function setEstimatedMinutes(id: string, minutes: number): Promise<void> {
+  await db.paraNodes.update(id, { estimatedMinutes: Math.max(0, minutes), updatedAt: Date.now() });
+}
+
+/** Appends time spent to a node's running total, in minutes. */
+export async function logTimeSpent(id: string, minutes: number): Promise<void> {
+  if (minutes <= 0) return;
+  const node = await db.paraNodes.get(id);
+  if (!node) return;
+  await db.paraNodes.update(id, {
+    loggedMinutes: (node.loggedMinutes ?? 0) + minutes,
+    updatedAt: Date.now(),
+  });
+}

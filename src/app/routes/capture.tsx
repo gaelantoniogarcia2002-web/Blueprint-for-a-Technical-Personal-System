@@ -10,7 +10,7 @@ export const Route = createRoute({
 
 function CapturePage() {
   return (
-    <div className="flex flex-col" style={{ height: 'calc(100vh - 57px)' }}>
+    <div className="flex flex-col h-full min-h-0">
       <CaptureShell />
     </div>
   );

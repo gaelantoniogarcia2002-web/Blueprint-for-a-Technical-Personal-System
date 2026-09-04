@@ -3,6 +3,8 @@ import { Route as rootRoute } from './__root';
 import { ParaChart } from '@/components/dashboard/ParaChart';
 import { ProgressChart } from '@/components/dashboard/ProgressChart';
 import { LoopsChart } from '@/components/dashboard/LoopsChart';
+import { TimelineChart } from '@/components/dashboard/TimelineChart';
+import { LoopsModule } from '@/components/dashboard/LoopsModule';
 
 export const Route = createRoute({
   getParentRoute: () => rootRoute,
@@ -17,21 +19,35 @@ function DashboardPage() {
 
       <section>
         <h2 className="text-sm font-medium text-muted-foreground mb-2">
-          PARA Node Distribution
+          Módulo de Bucles
+        </h2>
+        <LoopsModule />
+      </section>
+
+      <section>
+        <h2 className="text-sm font-medium text-muted-foreground mb-2">
+          Distribución de nodos PARA
         </h2>
         <ParaChart />
       </section>
 
       <section>
         <h2 className="text-sm font-medium text-muted-foreground mb-2">
-          Project Progress
+          Progreso de proyectos
         </h2>
         <ProgressChart />
       </section>
 
       <section>
         <h2 className="text-sm font-medium text-muted-foreground mb-2">
-          Active Loops Over Time
+          Línea de tiempo comparativa (Proyectos vs. Áreas/Recursos)
+        </h2>
+        <TimelineChart />
+      </section>
+
+      <section>
+        <h2 className="text-sm font-medium text-muted-foreground mb-2">
+          Bucles activos vs. completados
         </h2>
         <LoopsChart />
       </section>

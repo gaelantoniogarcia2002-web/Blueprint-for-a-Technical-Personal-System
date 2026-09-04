@@ -1,6 +1,7 @@
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useParaNodes } from '@/hooks/useParaNodes';
 import { aggregateParaByType } from '@/domain/dashboardAggregates';
+import { DEPOSIT_TYPE_LABELS } from '@/domain/paraRules';
 
 const COLORS: Record<string, string> = {
   PROJECT: '#6366f1',
@@ -11,7 +12,7 @@ const COLORS: Record<string, string> = {
 
 export function ParaChart() {
   const nodes = useParaNodes();
-  const data = aggregateParaByType(nodes);
+  const data = aggregateParaByType(nodes).map((d) => ({ ...d, label: DEPOSIT_TYPE_LABELS[d.type] }));
 
   if (data.length === 0) {
     return (
@@ -27,7 +28,7 @@ export function ParaChart() {
         <Pie
           data={data}
           dataKey="count"
-          nameKey="type"
+          nameKey="label"
           cx="50%"
           cy="50%"
           outerRadius={80}

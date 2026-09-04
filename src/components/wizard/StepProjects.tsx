@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParaNodes } from '@/hooks/useParaNodes';
 import { updateParaNode } from '@/repositories/paraNode.repo';
-import { appendFeedback } from '@/repositories/loop.repo';
+import { appendFeedback, closeLoop } from '@/repositories/loop.repo';
 import { createReviewSession } from '@/repositories/reviewSession.repo';
 import { useLoops } from '@/hooks/useLoops';
 import { useWizardStore } from '@/stores/wizard.store';
@@ -26,6 +26,18 @@ export function StepProjects({ mountTime, onComplete }: StepProjectsProps) {
 
   function getUpdate(projectId: string, currentTitle: string, currentDesc: string) {
     return updates[projectId] ?? { title: currentTitle, description: currentDesc ?? '' };
+  }
+
+  async function handleCloseLoop(loopId: string) {
+    const note = feedback[loopId]?.trim() || undefined;
+    await closeLoop(loopId, note);
+    // Note was already persisted by closeLoop — drop it so handleComplete
+    // doesn't append it a second time.
+    setFeedback((prev) => {
+      const rest = { ...prev };
+      delete rest[loopId];
+      return rest;
+    });
   }
 
   async function handleComplete() {
@@ -108,7 +120,16 @@ export function StepProjects({ mountTime, onComplete }: StepProjectsProps) {
                     </p>
                     {projectLoops.map((loop) => (
                       <div key={loop.id} className="space-y-1">
-                        <p className="text-xs">{loop.title}</p>
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-xs">{loop.title}</p>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleCloseLoop(loop.id)}
+                          >
+                            Marcar como completado
+                          </Button>
+                        </div>
                         <Textarea
                           placeholder="Agregar nota de feedback..."
                           value={feedback[loop.id] ?? ''}
