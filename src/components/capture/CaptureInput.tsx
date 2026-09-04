@@ -1,8 +1,9 @@
-import { useRef, type KeyboardEvent } from 'react';
+import { useRef, useState, type KeyboardEvent } from 'react';
 import { addCapture } from '@/repositories/captureItem.repo';
 
 export function CaptureInput() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
     // Submit on Enter without Shift
@@ -13,13 +14,19 @@ export function CaptureInput() {
   }
 
   async function handleSubmit() {
+    if (submitting) return;
     const el = textareaRef.current;
     if (!el) return;
     const text = el.value.trim();
     if (!text) return;
-    await addCapture(text);
-    el.value = '';
-    el.style.height = 'auto';
+    setSubmitting(true);
+    try {
+      await addCapture(text);
+      el.value = '';
+      el.style.height = 'auto';
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   function handleInput() {

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useCaptureInbox } from '@/hooks/useCaptureInbox';
 import { classify } from '@/domain/paraRules';
 import { createParaNode } from '@/repositories/paraNode.repo';
@@ -22,6 +23,7 @@ export function StepProcess({ mountTime }: StepProcessProps) {
   const draft = useWizardStore((s) => s.draft);
   const setDraft = useWizardStore((s) => s.setDraft);
   const step = useWizardStore((s) => s.step);
+  const [processing, setProcessing] = useState(false);
 
   const pending = inbox.filter((i) => !i.processed);
   const currentItem = pending[0];
@@ -29,25 +31,29 @@ export function StepProcess({ mountTime }: StepProcessProps) {
   const suggestedType = draft.type ?? (currentItem ? classify({ title: currentItem.rawText }) : 'RESOURCE');
 
   async function handleProcess() {
-    if (!currentItem) return;
+    if (!currentItem || processing) return;
+    setProcessing(true);
+    try {
+      const type = draft.type ?? suggestedType;
+      const title = draft.title ?? currentItem.rawText;
 
-    const type = draft.type ?? suggestedType;
-    const title = draft.title ?? currentItem.rawText;
+      const nodeId = await createParaNode({ title, type, description: '' });
 
-    const nodeId = await createParaNode({ title, type, description: '' });
+      if (type === 'PROJECT') {
+        await createLoop({
+          nodeId,
+          title: `Loop: ${title}`,
+          status: 'ACTIVE',
+          feedbackNotes: [],
+        });
+      }
 
-    if (type === 'PROJECT') {
-      await createLoop({
-        nodeId,
-        title: `Loop: ${title}`,
-        status: 'ACTIVE',
-        feedbackNotes: [],
-      });
+      await markProcessed(currentItem.id);
+      setDraft({});
+      console.debug('[CES]', { step, elapsed: Date.now() - mountTime, event: 'item-processed' });
+    } finally {
+      setProcessing(false);
     }
-
-    await markProcessed(currentItem.id);
-    setDraft({});
-    console.debug('[CES]', { step, elapsed: Date.now() - mountTime, event: 'item-processed' });
   }
 
   function handleNext() {
@@ -95,8 +101,8 @@ export function StepProcess({ mountTime }: StepProcessProps) {
             </select>
           </div>
 
-          <Button size="sm" onClick={handleProcess}>
-            Crear nodo y procesar
+          <Button size="sm" onClick={handleProcess} disabled={processing}>
+            {processing ? 'Procesando…' : 'Crear nodo y procesar'}
           </Button>
         </div>
       ) : (

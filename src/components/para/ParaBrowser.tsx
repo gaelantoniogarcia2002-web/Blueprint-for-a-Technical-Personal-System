@@ -38,12 +38,18 @@ function formatMinutes(minutes: number): string {
 function CreateForm() {
   const [title, setTitle] = useState('');
   const [type, setType] = useState<DepositType>('PROJECT');
+  const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!title.trim()) return;
-    await createParaNode({ title: title.trim(), type, description: '' });
-    setTitle('');
+    if (submitting || !title.trim()) return;
+    setSubmitting(true);
+    try {
+      await createParaNode({ title: title.trim(), type, description: '' });
+      setTitle('');
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -70,8 +76,8 @@ function CreateForm() {
           ))}
         </select>
       </div>
-      <Button type="submit" size="sm">
-        Agregar
+      <Button type="submit" size="sm" disabled={submitting}>
+        {submitting ? 'Agregando…' : 'Agregar'}
       </Button>
     </form>
   );
